@@ -47,15 +47,4 @@ $('saveSettings').onclick=()=>{settings={empRate:Math.min(100,n('empRate')),erRa
 $('clearAll').onclick=()=>{if(confirm('Clear all employee and payroll data from this session? Download a backup first if needed.')){employees=[];records=[];calc=slip=null;clearForm();renderEmployees();renderRecords();dashboard();$('preview').classList.add('hidden');$('slipCard').innerHTML='<div class="empty">Choose Payslip from a payroll register row.</div>';alert('Session data cleared.')}};
 renderEmployees();renderRecords();dashboard();
 })();
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://effkearqmampzkgylooh.supabase.co/rest/v1/";
-  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_8SImxCnIpZcFTWQOBNnMBw_d_hfo40F";
-
-  const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
-</script>
-</body></html>
+</script></body></html>
