@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Prinsora Payroll & HR</title>
+<title>Prinsora HR Consulting Services - Payroll & HR</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--gold:#c8a34d;--black:#171717;--line:#e2e4e8;--muted:#68707c;--bg:#f5f6f8;--red:#a52323;--green:#176b3a}
@@ -30,16 +30,16 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;b
 <div class="tabs" style="margin-top:15px"><button data-tab="companies" class="active">Companies</button><button data-tab="employees">Employees</button><button data-tab="payroll">Payroll</button><button data-tab="leave">Leave records</button></div>
 <section id="tab-companies" class="panel">
 <div class="card"><h2>Add / update company</h2><form id="company-form"><input id="company-id" type="hidden"><div class="grid">
-<label>Company name *<input id="company-name" required maxlength="160"></label><label>Registration / tax reference<input id="company-ref" maxlength="100"></label><label>Contact email<input id="company-email" type="email"></label><label>Phone<input id="company-phone"></label><label>Address<input id="company-address"></label><label>Status<select id="company-active"><option value="true">Active</option><option value="false">Inactive</option></select></label></div><button class="dark">Save company</button><button type="button" id="company-reset">Clear</button></form></div>
-<div class="card"><h2>Registered companies</h2><div class="scroll"><table><thead><tr><th>Company</th><th>Reference</th><th>Contact</th><th>Status</th><th>Actions</th></tr></thead><tbody id="companies-body"></tbody></table></div></div>
+<label>Company name *<input id="company-name" required maxlength="160"></label><label>Registration / tax reference<input id="company-ref" maxlength="100"></label><label>Contact email<input id="company-email" type="email"></label><label>Phone<input id="company-phone"></label><label>Address<input id="company-address"></label><label>Proration method<select id="company-proration"><option value="calendar_days">Calendar days</option><option value="working_days">Working days (Mon–Fri)</option><option value="fixed_30_days">Fixed 30-day month</option></select></label><label>Status<select id="company-active"><option value="true">Active</option><option value="false">Inactive</option></select></label></div><button class="dark">Save company</button><button type="button" id="company-reset">Clear</button></form></div>
+<div class="card"><h2>Registered companies</h2><div class="scroll"><table><thead><tr><th>Company</th><th>Reference</th><th>Contact</th><th>Proration</th><th>Status</th><th>Actions</th></tr></thead><tbody id="companies-body"></tbody></table></div></div>
 </section>
 <section id="tab-employees" class="panel hidden">
 <div class="card"><h2>Add / update employee</h2><form id="employee-form"><input id="employee-id" type="hidden"><div class="grid">
-<label>Company *<select id="employee-company" required></select></label><label>Employee number *<input id="employee-number" required maxlength="40"></label><label>Full name *<input id="employee-name" required maxlength="160"></label><label>Email<input id="employee-email" type="email"></label><label>Department<input id="employee-department"></label><label>Job title<input id="employee-title"></label><label>Basic salary / month (₦)<input id="employee-basic" type="number" min="0" step=".01" value="0" required></label><label>Housing allowance / month (₦)<input id="employee-housing" type="number" min="0" step=".01" value="0"></label><label>Transport allowance / month (₦)<input id="employee-transport" type="number" min="0" step=".01" value="0"></label><label>Other allowance / month (₦)<input id="employee-other" type="number" min="0" step=".01" value="0"></label><label>Employee pension applies?<select id="employee-pension"><option value="true">Yes</option><option value="false">No</option></select></label><label>PAYE applies?<select id="employee-paye"><option value="true">Yes</option><option value="false">No</option></select></label><label>Status<select id="employee-status"><option value="active">Active</option><option value="inactive">Inactive</option></select></label></div><button class="dark">Save employee</button><button type="button" id="employee-reset">Clear</button></form></div>
-<div class="card"><h2>Employees</h2><div class="grid"><label>Filter by company<select id="employee-filter"></select></label><label>Search<input id="employee-search" placeholder="Name, employee number, department"></label></div><div class="scroll"><table><thead><tr><th>Company</th><th>Employee</th><th>Department / title</th><th>Monthly salary package</th><th>Status</th><th>Actions</th></tr></thead><tbody id="employees-body"></tbody></table></div></div>
+<label>Company *<select id="employee-company" required></select></label><label>Employee number *<input id="employee-number" required maxlength="40"></label><label>Full name *<input id="employee-name" required maxlength="160"></label><label>Email<input id="employee-email" type="email"></label><label>Department<input id="employee-department"></label><label>Job title<input id="employee-title"></label><label>Basic salary / month (₦)<input id="employee-basic" type="number" min="0" step=".01" value="0" required></label><label>Housing allowance / month (₦)<input id="employee-housing" type="number" min="0" step=".01" value="0"></label><label>Transport allowance / month (₦)<input id="employee-transport" type="number" min="0" step=".01" value="0"></label><label>Other allowance / month (₦)<input id="employee-other" type="number" min="0" step=".01" value="0"></label><label>Employee pension applies?<select id="employee-pension"><option value="true">Yes</option><option value="false">No</option></select></label><label>PAYE applies?<select id="employee-paye"><option value="true">Yes</option><option value="false">No</option></select></label><label>Employment start date<input id="employee-start-date" type="date"></label><label>Employment end date (optional)<input id="employee-end-date" type="date"></label><label>Status<select id="employee-status"><option value="active">Active</option><option value="inactive">Inactive</option></select></label></div><button class="dark">Save employee</button><button type="button" id="employee-reset">Clear</button></form></div>
+<div class="card"><h2>Employees</h2><div class="grid"><label>Filter by company<select id="employee-filter"></select></label><label>Search<input id="employee-search" placeholder="Name, employee number, department"></label></div><div class="scroll"><table><thead><tr><th>Company</th><th>Employee</th><th>Department / title</th><th>Employment dates</th><th>Monthly salary package</th><th>Status</th><th>Actions</th></tr></thead><tbody id="employees-body"></tbody></table></div></div>
 </section>
 <section id="tab-payroll" class="panel hidden">
-<div class="card"><h2>Create payroll draft</h2><p class="muted">Select company and month. The system calculates gross pay and a configurable employee pension estimate. PAYE is entered/reviewed by the administrator for each employee before saving. Confirm applicable law and current rules with a qualified payroll/tax professional.</p><form id="payroll-form"><div class="grid"><label>Company *<select id="payroll-company" required></select></label><label>Payroll month *<input id="payroll-month" type="month" required></label><label>Employee pension rate (%)<input id="pension-rate" type="number" min="0" max="100" step=".1" value="8" required></label></div><button type="button" id="preview-payroll" class="dark">Load payroll preview</button><button type="submit" id="save-payroll">Save draft</button></form><div id="payroll-preview" class="scroll"></div></div>
+<div class="card"><h2>Create payroll draft</h2><p class="muted">Select company and month. The system prorates salary using the method configured for that company (calendar days, Monday–Friday working days, or fixed 30-day month) and calculates a configurable employee pension estimate. PAYE is entered/reviewed by the administrator for each employee before saving. Confirm applicable law and current rules with a qualified payroll/tax professional.</p><form id="payroll-form"><div class="grid"><label>Company *<select id="payroll-company" required></select></label><label>Payroll month *<input id="payroll-month" type="month" required></label><label>Employee pension rate (%)<input id="pension-rate" type="number" min="0" max="100" step=".1" value="8" required></label></div><button type="button" id="preview-payroll" class="dark">Load payroll preview</button><button type="submit" id="save-payroll">Save draft</button></form><div id="payroll-preview" class="scroll"></div></div>
 <div class="card"><h2>Saved payroll runs</h2><div class="scroll"><table><thead><tr><th>Month</th><th>Company</th><th>Employees</th><th>Gross total</th><th>Net total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="payroll-body"></tbody></table></div></div>
 </section>
 <section id="tab-leave" class="panel hidden">
@@ -66,24 +66,24 @@ async function refreshAll(){try{[companies,employees,runs,leaveRecords]=await Pr
 function companyOptions(sel,chosen='',includeAll=false){let options=includeAll?'<option value="">All companies</option>':'';options+=companies.map(c=>`<option value="${c.id}" ${c.id===chosen?'selected':''}>${esc(c.name)}</option>`).join('');$(sel).innerHTML=options}
 function renderAll(){ $('stat-companies').textContent=companies.length;$('stat-employees').textContent=employees.length;$('stat-drafts').textContent=runs.filter(r=>r.status==='draft').length;
 companyOptions('employee-company');companyOptions('employee-filter','',true);companyOptions('payroll-company');companyOptions('leave-company');
-$('companies-body').innerHTML=companies.map(c=>`<tr><td><b>${esc(c.name)}</b><br><small>${esc(c.address||'')}</small></td><td>${esc(c.registration_ref||'—')}</td><td>${esc(c.contact_email||'—')}<br>${esc(c.phone||'')}</td><td>${c.is_active?'Active':'Inactive'}</td><td><button onclick="editCompany('${c.id}')">Edit</button><button class="danger" onclick="toggleCompany('${c.id}',${!c.is_active})">${c.is_active?'Deactivate':'Activate'}</button></td></tr>`).join('')||'<tr><td colspan="5">No companies yet. Add your first company above.</td></tr>';
+$('companies-body').innerHTML=companies.map(c=>`<tr><td><b>${esc(c.name)}</b><br><small>${esc(c.address||'')}</small></td><td>${esc(c.registration_ref||'—')}</td><td>${esc(c.contact_email||'—')}<br>${esc(c.phone||'')}</td><td>${esc(({calendar_days:'Calendar days',working_days:'Working days (Mon–Fri)',fixed_30_days:'Fixed 30-day month'})[c.proration_method]||'Calendar days')}</td><td>${c.is_active?'Active':'Inactive'}</td><td><button onclick="editCompany('${c.id}')">Edit</button><button class="danger" onclick="toggleCompany('${c.id}',${!c.is_active})">${c.is_active?'Deactivate':'Activate'}</button></td></tr>`).join('')||'<tr><td colspan="6">No companies yet. Add your first company above.</td></tr>';
 renderEmployees();renderRuns();renderLeave();refreshLeaveEmployees();}
-function renderEmployees(){let filter=$('employee-filter').value||'',search=($('employee-search').value||'').toLowerCase();let list=employees.filter(e=>(!filter||e.organization_id===filter)&&[e.full_name,e.employee_number,e.department,e.job_title].some(x=>(x||'').toLowerCase().includes(search)));$('employees-body').innerHTML=list.map(e=>{let c=companies.find(x=>x.id===e.organization_id);return `<tr><td>${esc(c?.name||'Unknown')}</td><td><b>${esc(e.full_name)}</b><br>${esc(e.employee_number)}<br><small>${esc(e.email||'')}</small></td><td>${esc(e.department||'—')}<br>${esc(e.job_title||'')}</td><td>${money(Number(e.basic_salary)+Number(e.housing_allowance)+Number(e.transport_allowance)+Number(e.other_allowances))}</td><td>${esc(e.employment_status)}</td><td><button onclick="editEmployee('${e.id}')">Edit</button><button class="danger" onclick="toggleEmployee('${e.id}','${e.employment_status==='active'?'inactive':'active'}')">${e.employment_status==='active'?'Deactivate':'Activate'}</button></td></tr>`}).join('')||'<tr><td colspan="6">No matching employees.</td></tr>'}
+function renderEmployees(){let filter=$('employee-filter').value||'',search=($('employee-search').value||'').toLowerCase();let list=employees.filter(e=>(!filter||e.organization_id===filter)&&[e.full_name,e.employee_number,e.department,e.job_title].some(x=>(x||'').toLowerCase().includes(search)));$('employees-body').innerHTML=list.map(e=>{let c=companies.find(x=>x.id===e.organization_id);return `<tr><td>${esc(c?.name||'Unknown')}</td><td><b>${esc(e.full_name)}</b><br>${esc(e.employee_number)}<br><small>${esc(e.email||'')}</small></td><td>${esc(e.department||'—')}<br>${esc(e.job_title||'')}</td><td>${esc(e.employment_start_date||'Not set')} – ${esc(e.employment_end_date||'No end date')}</td><td>${money(Number(e.basic_salary)+Number(e.housing_allowance)+Number(e.transport_allowance)+Number(e.other_allowances))}</td><td>${esc(e.employment_status)}</td><td><button onclick="editEmployee('${e.id}')">Edit</button><button class="danger" onclick="toggleEmployee('${e.id}','${e.employment_status==='active'?'inactive':'active'}')">${e.employment_status==='active'?'Deactivate':'Activate'}</button></td></tr>`}).join('')||'<tr><td colspan="7">No matching employees.</td></tr>'}
 function renderRuns(){$('payroll-body').innerHTML=runs.map(r=>{let items=r.payroll_items||[];return `<tr><td>${esc(String(r.payroll_month).slice(0,7))}</td><td>${esc(r.organizations?.name||'')}</td><td>${items.length}</td><td>${money(items.reduce((s,i)=>s+Number(i.gross_pay||0),0))}</td><td>${money(items.reduce((s,i)=>s+Number(i.net_pay||0),0))}</td><td>${esc(r.status)}</td><td><button onclick="viewRun('${r.id}')">View / print</button>${r.status==='draft'?`<button onclick="approveRun('${r.id}')">Approve</button>`:''}</td></tr>`}).join('')||'<tr><td colspan="7">No payroll runs yet.</td></tr>'}
 function renderLeave(){$('leave-body').innerHTML=leaveRecords.map(r=>`<tr><td>${esc(r.organizations?.name||'')}</td><td>${esc(r.employees?.full_name||'')}</td><td>${esc(r.leave_type)}</td><td>${esc(r.start_date)} – ${esc(r.end_date)}</td><td><select onchange="setLeaveStatus('${r.id}',this.value)"><option ${r.status==='pending'?'selected':''}>pending</option><option ${r.status==='approved'?'selected':''}>approved</option><option ${r.status==='rejected'?'selected':''}>rejected</option><option ${r.status==='completed'?'selected':''}>completed</option></select></td><td><button class="danger" onclick="deleteRow('leave_records','${r.id}','leave record')">Delete</button></td></tr>`).join('')||'<tr><td colspan="6">No leave records.</td></tr>'}
 function refreshLeaveEmployees(){let c=$('leave-company').value;let arr=employees.filter(e=>e.employment_status==='active'&&(!c||e.organization_id===c));$('leave-employee').innerHTML=arr.map(e=>`<option value="${e.id}">${esc(e.employee_number)} — ${esc(e.full_name)}</option>`).join('')}
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('hidden',x.id!=='tab-'+b.dataset.tab))}));
 $('login-form').addEventListener('submit',async e=>{e.preventDefault();try{initClient();const {error}=await client.auth.signInWithPassword({email:$('login-email').value,password:$('login-password').value});if(error)throw error;await boot()}catch(e){message(e.message||'Sign-in failed',true,'login-msg')}});
 $('signout').onclick=async()=>{await client.auth.signOut();location.reload()};
-function clearCompany(){$('company-form').reset();$('company-id').value='';$('company-active').value='true'}
+function clearCompany(){$('company-form').reset();$('company-id').value='';$('company-active').value='true';$('company-proration').value='calendar_days'}
 $('company-reset').onclick=clearCompany;
-$('company-form').onsubmit=async e=>{e.preventDefault();if(!adminOnly())return;const id=$('company-id').value,p={name:$('company-name').value.trim(),registration_ref:$('company-ref').value.trim()||null,contact_email:$('company-email').value.trim()||null,phone:$('company-phone').value.trim()||null,address:$('company-address').value.trim()||null,is_active:$('company-active').value==='true'};try{const q=id?client.from('organizations').update(p).eq('id',id):client.from('organizations').insert(p);const {error}=await q;if(error)throw error;clearCompany();await refreshAll();message('Company saved.')}catch(e){message(e.message,true)}};
-window.editCompany=id=>{let c=companies.find(x=>x.id===id);if(!c)return;$('company-id').value=c.id;$('company-name').value=c.name;$('company-ref').value=c.registration_ref||'';$('company-email').value=c.contact_email||'';$('company-phone').value=c.phone||'';$('company-address').value=c.address||'';$('company-active').value=String(c.is_active)};
+$('company-form').onsubmit=async e=>{e.preventDefault();if(!adminOnly())return;const id=$('company-id').value,p={name:$('company-name').value.trim(),registration_ref:$('company-ref').value.trim()||null,contact_email:$('company-email').value.trim()||null,phone:$('company-phone').value.trim()||null,address:$('company-address').value.trim()||null,is_active:$('company-active').value==='true',proration_method:$('company-proration').value};try{const q=id?client.from('organizations').update(p).eq('id',id):client.from('organizations').insert(p);const {error}=await q;if(error)throw error;clearCompany();await refreshAll();message('Company saved.')}catch(e){message(e.message,true)}};
+window.editCompany=id=>{let c=companies.find(x=>x.id===id);if(!c)return;$('company-id').value=c.id;$('company-name').value=c.name;$('company-ref').value=c.registration_ref||'';$('company-email').value=c.contact_email||'';$('company-phone').value=c.phone||'';$('company-address').value=c.address||'';$('company-active').value=String(c.is_active);$('company-proration').value=c.proration_method||'calendar_days'};
 window.toggleCompany=async(id,val)=>{if(!confirm('Change company active status? Existing records will be retained.'))return;const {error}=await client.from('organizations').update({is_active:val}).eq('id',id);if(error)message(error.message,true);else{await refreshAll();message('Company status updated.')}};
 function clearEmployee(){$('employee-form').reset();$('employee-id').value='';$('employee-basic').value=0;$('employee-housing').value=0;$('employee-transport').value=0;$('employee-other').value=0}
 $('employee-reset').onclick=clearEmployee;
-$('employee-form').onsubmit=async e=>{e.preventDefault();if(!adminOnly())return;let id=$('employee-id').value;const p={organization_id:$('employee-company').value,employee_number:$('employee-number').value.trim(),full_name:$('employee-name').value.trim(),email:$('employee-email').value.trim()||null,department:$('employee-department').value.trim()||null,job_title:$('employee-title').value.trim()||null,basic_salary:+$('employee-basic').value||0,housing_allowance:+$('employee-housing').value||0,transport_allowance:+$('employee-transport').value||0,other_allowances:+$('employee-other').value||0,pension_applies:$('employee-pension').value==='true',paye_applies:$('employee-paye').value==='true',employment_status:$('employee-status').value};try{const q=id?client.from('employees').update(p).eq('id',id):client.from('employees').insert(p);const {error}=await q;if(error)throw error;clearEmployee();await refreshAll();message('Employee record saved. No employee login was created.')}catch(e){message(e.message,true)}};
-window.editEmployee=id=>{let e=employees.find(x=>x.id===id);if(!e)return;$('employee-id').value=e.id;for(const [k,v] of Object.entries({'employee-company':e.organization_id,'employee-number':e.employee_number,'employee-name':e.full_name,'employee-email':e.email||'','employee-department':e.department||'','employee-title':e.job_title||'','employee-basic':e.basic_salary,'employee-housing':e.housing_allowance,'employee-transport':e.transport_allowance,'employee-other':e.other_allowances,'employee-pension':String(e.pension_applies),'employee-paye':String(e.paye_applies),'employee-status':e.employment_status}))$(k).value=v;document.querySelector('[data-tab="employees"]').click();window.scrollTo({top:0,behavior:'smooth'})};
+$('employee-form').onsubmit=async e=>{e.preventDefault();if(!adminOnly())return;let id=$('employee-id').value;const p={organization_id:$('employee-company').value,employee_number:$('employee-number').value.trim(),full_name:$('employee-name').value.trim(),email:$('employee-email').value.trim()||null,department:$('employee-department').value.trim()||null,job_title:$('employee-title').value.trim()||null,basic_salary:+$('employee-basic').value||0,housing_allowance:+$('employee-housing').value||0,transport_allowance:+$('employee-transport').value||0,other_allowances:+$('employee-other').value||0,pension_applies:$('employee-pension').value==='true',paye_applies:$('employee-paye').value==='true',employment_start_date:$('employee-start-date').value||null,employment_end_date:$('employee-end-date').value||null,employment_status:$('employee-status').value};if(p.employment_start_date&&p.employment_end_date&&p.employment_end_date<p.employment_start_date)return message('Employment end date cannot be before the start date.',true);try{const q=id?client.from('employees').update(p).eq('id',id):client.from('employees').insert(p);const {error}=await q;if(error)throw error;clearEmployee();await refreshAll();message('Employee record saved. No employee login was created.')}catch(e){message(e.message,true)}};
+window.editEmployee=id=>{let e=employees.find(x=>x.id===id);if(!e)return;$('employee-id').value=e.id;for(const [k,v] of Object.entries({'employee-company':e.organization_id,'employee-number':e.employee_number,'employee-name':e.full_name,'employee-email':e.email||'','employee-department':e.department||'','employee-title':e.job_title||'','employee-basic':e.basic_salary,'employee-housing':e.housing_allowance,'employee-transport':e.transport_allowance,'employee-other':e.other_allowances,'employee-pension':String(e.pension_applies),'employee-paye':String(e.paye_applies),'employee-start-date':e.employment_start_date||'','employee-end-date':e.employment_end_date||'','employee-status':e.employment_status}))$(k).value=v;document.querySelector('[data-tab="employees"]').click();window.scrollTo({top:0,behavior:'smooth'})};
 window.toggleEmployee=async(id,status)=>{if(!confirm('Change employee status? Historical payroll will be retained.'))return;const {error}=await client.from('employees').update({employment_status:status}).eq('id',id);if(error)message(error.message,true);else{await refreshAll();message('Employee status updated.')}};
 $('employee-filter').onchange=renderEmployees;$('employee-search').oninput=renderEmployees;
 $('leave-company').onchange=refreshLeaveEmployees;
@@ -92,322 +92,47 @@ window.setLeaveStatus=async(id,status)=>{const {error}=await client.from('leave_
 window.deleteRow=async(table,id,label)=>{if(!confirm('Delete this '+label+'?'))return;const {error}=await client.from(table).delete().eq('id',id);if(error)message(error.message,true);else{await refreshAll();message('Record deleted.')}};
 $('preview-payroll').onclick=async()=>{
   if(!adminOnly())return;
-
-  const org=$('payroll-company').value;
-  const month=$('payroll-month').value;
-  const rate=(+$('pension-rate').value||0)/100;
-
+  const org=$('payroll-company').value,month=$('payroll-month').value,rate=(+$('pension-rate').value||0)/100;
   if(!org||!month)return message('Choose company and month.',true);
-
   const company=companies.find(c=>c.id===org);
   const method=company?.proration_method||'calendar_days';
   const [year,mon]=month.split('-').map(Number);
   const daysInMonth=new Date(year,mon,0).getDate();
-
-  const workingDaysInMonth=()=>{
-    let count=0;
-    for(let d=1;d<=daysInMonth;d++){
-      const weekday=new Date(year,mon-1,d).getDay();
-      if(weekday!==0&&weekday!==6)count++;
-    }
-    return count;
-  };
-
-  const daysBetween=(start,end)=>{
-    let count=0;
-    for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
-      count++;
-    }
-    return count;
-  };
-
-  const countPayableDays=(start,end)=>{
-    if(method==='fixed_30_days'){
-      return Math.max(0,Math.min(30,daysBetween(start,end)));
-    }
-    if(method==='working_days'){
-      let count=0;
-      for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
-        const weekday=d.getDay();
-        if(weekday!==0&&weekday!==6)count++;
-      }
-      return count;
-    }
-    return Math.max(0,daysBetween(start,end));
-  };
-
-  const list=employees.filter(e=>
-    e.organization_id===org&&e.employment_status==='active'
-  );
-
-  if(!list.length)return message('No active employees found for this company.',true);
-
   const periodStart=new Date(year,mon-1,1);
   const periodEnd=new Date(year,mon,0);
-
+  const dateOnly=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  const countWeekdays=(start,end)=>{let n=0;for(let d=dateOnly(start);d<=end;d.setDate(d.getDate()+1)){if(d.getDay()!==0&&d.getDay()!==6)n++;}return n;};
+  const countCalendar=(start,end)=>Math.max(0,Math.round((dateOnly(end)-dateOnly(start))/86400000)+1);
+  const weekdaysInMonth=countWeekdays(periodStart,periodEnd);
+  let list=employees.filter(e=>e.organization_id===org&&e.employment_status==='active');
+  if(!list.length)return message('No active employees found for this company.',true);
   previewRows=list.map(e=>{
-    const fullBasic=+e.basic_salary||0;
-    const fullHousing=+e.housing_allowance||0;
-    const fullTransport=+e.transport_allowance||0;
-    const fullOther=+e.other_allowances||0;
+    const fullBasic=Number(e.basic_salary)||0,fullHousing=Number(e.housing_allowance)||0,fullTransport=Number(e.transport_allowance)||0,fullOther=Number(e.other_allowances)||0;
     const fullGross=fullBasic+fullHousing+fullTransport+fullOther;
-
-    const start=e.employment_start_date
-      ?new Date(e.employment_start_date+'T00:00:00')
-      :periodStart;
-
-    const end=e.employment_end_date
-      ?new Date(e.employment_end_date+'T00:00:00')
-      :periodEnd;
-
+    const start=e.employment_start_date?new Date(e.employment_start_date+'T00:00:00'):periodStart;
+    const end=e.employment_end_date?new Date(e.employment_end_date+'T00:00:00'):periodEnd;
     const payableStart=start>periodStart?start:periodStart;
     const payableEnd=end<periodEnd?end:periodEnd;
-
-    let payableDays=0,periodDays=0;
-
+    let payableDays=0,periodDays=daysInMonth;
     if(payableStart<=payableEnd){
-      payableDays=countPayableDays(payableStart,payableEnd);
+      if(method==='working_days'){payableDays=countWeekdays(payableStart,payableEnd);periodDays=weekdaysInMonth;}
+      else {payableDays=countCalendar(payableStart,payableEnd);periodDays=method==='fixed_30_days'?30:daysInMonth;}
     }
-
-    if(method==='fixed_30_days'){
-      periodDays=30;
-    }else if(method==='working_days'){
-      periodDays=workingDaysInMonth();
-    }else{
-      periodDays=daysInMonth;
-    }
-
-    const fraction=periodDays>0?Math.min(1,payableDays/periodDays):0;
-
+    // An employee employed for the entire month receives the full monthly package, including February under fixed-30 method.
+    const employedFullPeriod=(!e.employment_start_date||start<=periodStart)&&(!e.employment_end_date||end>=periodEnd);
+    const fraction=employedFullPeriod?1:(periodDays>0?Math.min(1,payableDays/periodDays):0);
     const basic=Math.round(fullBasic*fraction*100)/100;
     const housing=Math.round(fullHousing*fraction*100)/100;
     const transport=Math.round(fullTransport*fraction*100)/100;
     const other=Math.round(fullOther*fraction*100)/100;
     const gross=basic+housing+transport+other;
-
-    const pension=e.pension_applies
-      ?Math.round((basic+housing+transport)*rate*100)/100
-      :0;
-
-    return {
-      employee_id:e.id,
-      employee_number:e.employee_number,
-      full_name:e.full_name,
-      basic_pay:basic,
-      housing_allowance:housing,
-      transport_allowance:transport,
-      other_allowances:other,
-      gross_pay:gross,
-      pension_employee:pension,
-      paye:0,
-      other_deductions:0,
-      net_pay:gross-pension,
-      pension_rate:rate*100,
-      payable_days:payableDays,
-      period_days:periodDays,
-      proration_method:method
-    };
+    const pension=e.pension_applies?Math.round((basic+housing+transport)*rate*100)/100:0;
+    return {employee_id:e.id,employee_number:e.employee_number,full_name:e.full_name,basic_pay:basic,housing_allowance:housing,transport_allowance:transport,other_allowances:other,gross_pay:gross,pension_employee:pension,paye:0,other_deductions:0,net_pay:gross-pension,pension_rate:rate*100,payable_days:employedFullPeriod?periodDays:payableDays,period_days:periodDays,proration_method:method};
   });
-
-  $('payroll-preview').innerHTML=`
-    <p><b>Preview for ${esc(month)}</b></p>
-    <p>Proration method: ${esc(method.replaceAll('_',' '))}.
-    Enter PAYE and other deductions where applicable.</p>
-    <div style="overflow-x:auto">
-    <table>
-      <thead><tr>
-        <th>Employee</th>
-        <th>Payable days</th>
-        <th>Gross</th>
-        <th>Pension estimate</th>
-        <th>PAYE (₦)</th>
-        <th>Other deductions (₦)</th>
-        <th>Net</th>
-      </tr></thead>
-      <tbody>${previewRows.map((r,i)=>`
-        <tr>
-          <td>${esc(r.employee_number||'')}<br>${esc(r.full_name)}</td>
-          <td>${r.payable_days} / ${r.period_days}</td>
-          <td>${money(r.gross_pay)}</td>
-          <td>${money(r.pension_employee)}</td>
-          <td><input type="number" min="0" step=".01" value="0" data-paye="${i}" style="width:100px"></td>
-          <td><input type="number" min="0" step=".01" value="0" data-ded="${i}" style="width:100px"></td>
-          <td id="net-${i}">${money(r.net_pay)}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-    </div>`;
-
-  document.querySelectorAll('[data-paye],[data-ded]').forEach(x=>
-    x.addEventListener('input',()=>{
-      const i=+(x.dataset.paye??x.dataset.ded);
-      const r=previewRows[i];
-      r.paye=+$(`[data-paye="${i}"]`).value||0;
-      r.other_deductions=+$(`[data-ded="${i}"]`).value||0;
-      r.net_pay=r.gross_pay-r.pension_employee-r.paye-r.other_deductions;
-      $('net-'+i).textContent=money(r.net_pay);
-    })
-  );
+  $('payroll-preview').innerHTML=`<p><b>Preview for ${esc(month)}</b> — method: <b>${esc(({calendar_days:'Calendar days',working_days:'Working days (Mon–Fri)',fixed_30_days:'Fixed 30-day month'})[method]||method)}</b>. Enter PAYE and other deductions where applicable.</p><div class="scroll"><table><thead><tr><th>Employee</th><th>Payable days</th><th>Basic</th><th>Housing</th><th>Transport</th><th>Other</th><th>Gross</th><th>Pension estimate</th><th>PAYE (₦)</th><th>Other deductions (₦)</th><th>Net</th></tr></thead><tbody>${previewRows.map((r,i)=>`<tr><td>${esc(r.employee_number)}<br>${esc(r.full_name)}</td><td>${r.payable_days}/${r.period_days}</td><td>${money(r.basic_pay)}</td><td>${money(r.housing_allowance)}</td><td>${money(r.transport_allowance)}</td><td>${money(r.other_allowances)}</td><td>${money(r.gross_pay)}</td><td>${money(r.pension_employee)}</td><td><input type="number" min="0" step=".01" value="0" data-paye="${i}" style="width:100px"></td><td><input type="number" min="0" step=".01" value="0" data-ded="${i}" style="width:100px"></td><td id="net-${i}">${money(r.net_pay)}</td></tr>`).join('')}</tbody></table></div>`;
+  document.querySelectorAll('[data-paye],[data-ded]').forEach(x=>x.addEventListener('input',()=>{const i=+(x.dataset.paye??x.dataset.ded),r=previewRows[i];r.paye=+$(`[data-paye="${i}"]`).value||0;r.other_deductions=+$(`[data-ded="${i}"]`).value||0;r.net_pay=r.gross_pay-r.pension_employee-r.paye-r.other_deductions;$('net-'+i).textContent=money(r.net_pay);}));
 };
-  if(!adminOnly())return;
-
-  const org=$('payroll-company').value;
-  const month=$('payroll-month').value;
-  const rate=(+$('pension-rate').value||0)/100;
-
-  if(!org||!month)return message('Choose company and month.',true);
-
-  const company=companies.find(c=>c.id===org);
-  const method=company?.proration_method||'calendar_days';
-  const [year,mon]=month.split('-').map(Number);
-  const daysInMonth=new Date(year,mon,0).getDate();
-
-  const workingDaysInMonth=()=>{
-    let count=0;
-    for(let d=1;d<=daysInMonth;d++){
-      const weekday=new Date(year,mon-1,d).getDay();
-      if(weekday!==0&&weekday!==6)count++;
-    }
-    return count;
-  };
-
-  const daysBetween=(start,end)=>{
-    let count=0;
-    for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
-      count++;
-    }
-    return count;
-  };
-
-  const countPayableDays=(start,end)=>{
-    if(method==='fixed_30_days'){
-      return Math.max(0,Math.min(30,daysBetween(start,end)));
-    }
-    if(method==='working_days'){
-      let count=0;
-      for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
-        const weekday=d.getDay();
-        if(weekday!==0&&weekday!==6)count++;
-      }
-      return count;
-    }
-    return Math.max(0,daysBetween(start,end));
-  };
-
-  const list=employees.filter(e=>
-    e.organization_id===org&&e.employment_status==='active'
-  );
-
-  if(!list.length)return message('No active employees found for this company.',true);
-
-  const periodStart=new Date(year,mon-1,1);
-  const periodEnd=new Date(year,mon,0);
-
-  previewRows=list.map(e=>{
-    const fullBasic=+e.basic_salary||0;
-    const fullHousing=+e.housing_allowance||0;
-    const fullTransport=+e.transport_allowance||0;
-    const fullOther=+e.other_allowances||0;
-    const fullGross=fullBasic+fullHousing+fullTransport+fullOther;
-
-    const start=e.employment_start_date
-      ?new Date(e.employment_start_date+'T00:00:00')
-      :periodStart;
-
-    const end=e.employment_end_date
-      ?new Date(e.employment_end_date+'T00:00:00')
-      :periodEnd;
-
-    const payableStart=start>periodStart?start:periodStart;
-    const payableEnd=end<periodEnd?end:periodEnd;
-
-    let payableDays=0,periodDays=0;
-
-    if(payableStart<=payableEnd){
-      payableDays=countPayableDays(payableStart,payableEnd);
-    }
-
-    if(method==='fixed_30_days'){
-      periodDays=30;
-    }else if(method==='working_days'){
-      periodDays=workingDaysInMonth();
-    }else{
-      periodDays=daysInMonth;
-    }
-
-    const fraction=periodDays>0?Math.min(1,payableDays/periodDays):0;
-
-    const basic=Math.round(fullBasic*fraction*100)/100;
-    const housing=Math.round(fullHousing*fraction*100)/100;
-    const transport=Math.round(fullTransport*fraction*100)/100;
-    const other=Math.round(fullOther*fraction*100)/100;
-    const gross=basic+housing+transport+other;
-
-    const pension=e.pension_applies
-      ?Math.round((basic+housing+transport)*rate*100)/100
-      :0;
-
-    return {
-      employee_id:e.id,
-      employee_number:e.employee_number,
-      full_name:e.full_name,
-      basic_pay:basic,
-      housing_allowance:housing,
-      transport_allowance:transport,
-      other_allowances:other,
-      gross_pay:gross,
-      pension_employee:pension,
-      paye:0,
-      other_deductions:0,
-      net_pay:gross-pension,
-      pension_rate:rate*100,
-      payable_days:payableDays,
-      period_days:periodDays,
-      proration_method:method
-    };
-  });
-
-  $('payroll-preview').innerHTML=`
-    <p><b>Preview for ${esc(month)}</b></p>
-    <p>Proration method: ${esc(method.replaceAll('_',' '))}.
-    Enter PAYE and other deductions where applicable.</p>
-    <div style="overflow-x:auto">
-    <table>
-      <thead><tr>
-        <th>Employee</th>
-        <th>Payable days</th>
-        <th>Gross</th>
-        <th>Pension estimate</th>
-        <th>PAYE (₦)</th>
-        <th>Other deductions (₦)</th>
-        <th>Net</th>
-      </tr></thead>
-      <tbody>${previewRows.map((r,i)=>`
-        <tr>
-          <td>${esc(r.employee_number||'')}<br>${esc(r.full_name)}</td>
-          <td>${r.payable_days} / ${r.period_days}</td>
-          <td>${money(r.gross_pay)}</td>
-          <td>${money(r.pension_employee)}</td>
-          <td><input type="number" min="0" step=".01" value="0" data-paye="${i}" style="width:100px"></td>
-          <td><input type="number" min="0" step=".01" value="0" data-ded="${i}" style="width:100px"></td>
-          <td id="net-${i}">${money(r.net_pay)}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-    </div>`;
-
-  document.querySelectorAll('[data-paye],[data-ded]').forEach(x=>
-    x.addEventListener('input',()=>{
-      const i=+(x.dataset.paye??x.dataset.ded);
-      const r=previewRows[i];
-      r.paye=+$(`[data-paye="${i}"]`).value||0;
-      r.other_deductions=+$(`[data-ded="${i}"]`).value||0;
-      r.net_pay=r.gross_pay-r.pension_employee-r.paye-r.other_deductions;
-      $('net-'+i).textContent=money(r.net_pay);
-    })
-  );
-};
-$('payroll-form').onsubmit=async e=>{e.preventDefault();if(!adminOnly())return;if(!previewRows.length)return message('Load payroll preview first.',true);const org=$('payroll-company').value,month=$('payroll-month').value;if(previewRows.some(r=>r.net_pay<0))return message('One or more net salaries are negative. Review deductions.',true);try{const {data:run,error}=await client.from('payroll_runs').insert({organization_id:org,payroll_month:month+'-01',status:'draft',pension_rate:(+$('pension-rate').value||0),notes:'Draft payroll. PAYE and deductions entered/reviewed by administrator.'}).select().single();if(error)throw error;const items=previewRows.map(r=>({...r,payroll_run_id:run.id}));const {error:ie}=await client.from('payroll_items').insert(items);if(ie){await client.from('payroll_runs').delete().eq('id',run.id);throw ie}previewRows=[];$('payroll-preview').innerHTML='';await refreshAll();message('Payroll draft saved. Review it before approval.')}catch(e){message('Could not save payroll: '+e.message,true)}};
+$('payroll-form').onsubmit=async e=>{e.preventDefault();if(!adminOnly())return;if(!previewRows.length)return message('Load payroll preview first.',true);const org=$('payroll-company').value,month=$('payroll-month').value;if(previewRows.some(r=>r.net_pay<0))return message('One or more net salaries are negative. Review deductions.',true);try{const {data:run,error}=await client.from('payroll_runs').insert({organization_id:org,payroll_month:month+'-01',status:'draft',pension_rate:(+$('pension-rate').value||0),notes:'Draft payroll. Proration method: '+(companies.find(c=>c.id===org)?.proration_method||'calendar_days')+'. PAYE and deductions entered/reviewed by administrator.'}).select().single();if(error)throw error;const items=previewRows.map(r=>{const {payable_days,period_days,proration_method,...dbRow}=r;return {...dbRow,payroll_run_id:run.id}});const {error:ie}=await client.from('payroll_items').insert(items);if(ie){await client.from('payroll_runs').delete().eq('id',run.id);throw ie}previewRows=[];$('payroll-preview').innerHTML='';await refreshAll();message('Payroll draft saved. Review it before approval.')}catch(e){message('Could not save payroll: '+e.message,true)}};
 window.approveRun=async id=>{if(!confirm('Approve this payroll draft? Ensure all salary, tax and deduction figures have been reviewed.'))return;const {error}=await client.from('payroll_runs').update({status:'approved',approved_at:new Date().toISOString()}).eq('id',id).eq('status','draft');if(error)message(error.message,true);else{await refreshAll();message('Payroll marked approved. This does not send payments.')}};
 window.viewRun=async id=>{const r=runs.find(x=>x.id===id);if(!r)return;const {data:items,error}=await client.from('payroll_items').select('*,employees(full_name,employee_number,department,job_title)').eq('payroll_run_id',id);if(error)return message(error.message,true);let c=companies.find(x=>x.id===r.organization_id);let w=window.open('','_blank');if(!w)return message('Allow pop-ups to view/print payroll.',true);w.document.write(`<html><head><title>Payroll ${esc(String(r.payroll_month).slice(0,7))}</title><style>body{font:13px Arial;padding:24px}table{width:100%;border-collapse:collapse}td,th{padding:8px;border:1px solid #ddd;text-align:left}h1{color:#171717}button{padding:8px}</style></head><body><h1>PRINSORA HR CONSULTING SERVICES - PAYROLL SUMMARY</h1><h2>${esc(c?.name||'')} · ${esc(String(r.payroll_month).slice(0,7))}</h2><p>Status: ${esc(r.status)}. Confidential.</p><table><tr><th>Employee</th><th>Basic</th><th>Housing</th><th>Transport</th><th>Other</th><th>Gross</th><th>Pension</th><th>PAYE</th><th>Other deductions</th><th>Net</th></tr>${(items||[]).map(i=>`<tr><td>${esc(i.employees?.employee_number)} — ${esc(i.employees?.full_name)}</td><td>${money(i.basic_pay)}</td><td>${money(i.housing_allowance)}</td><td>${money(i.transport_allowance)}</td><td>${money(i.other_allowances)}</td><td>${money(i.gross_pay)}</td><td>${money(i.pension_employee)}</td><td>${money(i.paye)}</td><td>${money(i.other_deductions)}</td><td>${money(i.net_pay)}</td></tr>`).join('')}</table><p><button onclick="print()">Print / Save as PDF</button></p></body></html>`);w.document.close()};
 </script>
