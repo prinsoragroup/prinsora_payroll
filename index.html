@@ -97,13 +97,12 @@ function annualIncomeTax(taxable){
   for(const band of bands){const amount=Math.min(remaining,band.limit);tax+=amount*band.rate;remaining-=amount;if(remaining<=0)break;}
   return Math.max(0,tax);
 }
-function estimateMonthlyPAYE(annualGross,eligibleDeductions={},annualRent=0){
-  // JRB 2026: only actual eligible amounts supported by records are deducted.
-  const rentRelief=Math.min(Math.max(0,Number(annualRent)||0)*.20,500000);
-  const eligibleTotal=Object.values(eligibleDeductions).reduce((sum,v)=>sum+Math.max(0,Number(v)||0),0);
-  const chargeable=Math.max(0,(Number(annualGross)||0)-eligibleTotal-rentRelief);
+function estimateMonthlyPAYE(annualGross, annualPension=0, annualNHF=0, annualNHIS=0){
+  // User-verified blueprint: chargeable income excludes only annual employee pension, NHF and NHIS.
+  const exemptions=Math.max(0,Number(annualPension)||0)+Math.max(0,Number(annualNHF)||0)+Math.max(0,Number(annualNHIS)||0);
+  const chargeable=Math.max(0,(Number(annualGross)||0)-exemptions);
   const annualTax=annualIncomeTax(chargeable);
-  return {monthly:Math.round(annualTax/12*100)/100,chargeable,rentRelief,eligibleTotal,annualTax};
+  return {monthly:Math.round(annualTax/12*100)/100,chargeable,exemptions,annualTax};
 }
 $('preview-payroll').onclick=async()=>{
   if(!adminOnly())return;
@@ -145,53 +144,38 @@ $('preview-payroll').onclick=async()=>{
     const employerRate=(+$('employer-pension-rate').value||0)/100;
     const nsitfRate=(+$('nsitf-rate').value||0)/100;
     const pensionEmployer=e.pension_applies?Math.round((basic+housing+transport)*employerRate*100)/100:0;
-    const nhf=0, nhis=0, life_insurance=0, mortgage_interest=0;
+    const nhf=Math.round(basic*0.025*100)/100, nhis=Math.round(basic*0.05*100)/100, nhis_employer=Math.round(basic*0.10*100)/100;
     const nsitf=Math.round(gross*nsitfRate*100)/100;
-    return {employee_id:e.id,employee_number:e.employee_number,full_name:e.full_name,basic_pay:basic,housing_allowance:housing,transport_allowance:transport,other_allowances:other,gross_pay:gross,pension_employee:pension,pension_employer:pensionEmployer,nhf,nhis,life_insurance,mortgage_interest,nsitf_employer:nsitf,paye:0,other_deductions:0,annual_rent_paid:0,net_pay:gross-pension,pension_rate:rate*100,payable_days:employedFullPeriod?periodDays:payableDays,period_days:periodDays,proration_method:method};
+    return {employee_id:e.id,employee_number:e.employee_number,full_name:e.full_name,basic_pay:basic,housing_allowance:housing,transport_allowance:transport,other_allowances:other,gross_pay:gross,pension_employee:pension,pension_employer:pensionEmployer,nhf,nhis,nhis_employer,nsitf_employer:nsitf,paye:0,other_deductions:0,net_pay:gross-pension-nhf-nhis,pension_rate:rate*100,payable_days:employedFullPeriod?periodDays:payableDays,period_days:periodDays,proration_method:method};
   });
-  $('payroll-preview').innerHTML=`<p><b>Preview for ${esc(month)}</b> â€” method: <b>${esc(({calendar_days:'Calendar days',working_days:'Working days (Monâ€“Fri)',fixed_30_days:'Fixed 30-day month'})[method]||method)}</b>. PAYE is an estimate under the 2026 bands. NHF and NHIS default to zero and must be entered only when applicable. Employer pension and NSITF are employer costs, not employee deductions.</p><div class="scroll"><table><thead><tr><th>Employee</th><th>Days</th><th>Gross</th><th>Employee pension</th><th>NHF (employee)</th><th>NHIS (employee)</th><th>Life insurance / year</th><th>Mortgage interest / year</th><th>Rent / year</th><th>Other eligible relief / year</th><th>PAYE / month</th><th>Other employee deductions</th><th>Employer pension</th><th>NSITF employer</th><th>Net pay</th></tr></thead><tbody>${previewRows.map((r,i)=>`<tr><td>${esc(r.employee_number)}<br>${esc(r.full_name)}</td><td>${r.payable_days}/${r.period_days}</td><td>${money(r.gross_pay)}</td><td>${money(r.pension_employee)}</td><td><input type="number" min="0" step=".01" value="0" data-nhf="${i}" style="width:100px" aria-label="Monthly NHF contribution"></td><td><input type="number" min="0" step=".01" value="0" data-nhis="${i}" style="width:100px" aria-label="Monthly NHIS contribution"></td><td><input type="number" min="0" step=".01" value="0" data-life="${i}" style="width:100px" aria-label="Annual life insurance premium"></td><td><input type="number" min="0" step=".01" value="0" data-mortgage="${i}" style="width:100px" aria-label="Annual eligible mortgage interest"></td><td><input type="number" min="0" step=".01" value="0" data-rent="${i}" style="width:100px" aria-label="Annual rent paid"></td><td><input type="number" min="0" step=".01" value="0" data-relief="${i}" style="width:100px" aria-label="Other eligible annual deductions"></td><td><input type="number" min="0" step=".01" value="0" data-paye="${i}" style="width:100px" aria-label="Monthly PAYE"></td><td><input type="number" min="0" step=".01" value="0" data-ded="${i}" style="width:100px" aria-label="Other employee deductions"></td><td>${money(r.pension_employer)}</td><td>${money(r.nsitf_employer)}</td><td id="net-${i}">${money(r.net_pay)}</td></tr>`).join('')}</tbody></table></div><p class="muted">NHF/NHIS and other reliefs must reflect actual eligibility, deductions and remittances. Rent relief is 20% of annual rent attributable to the tax year, capped at â‚¦500,000. NSITF is shown as an employer cost only. This is not a substitute for cumulative year-to-date PAYE reconciliation or review by the relevant tax authority/professional.</p>`;
+  $('payroll-preview').innerHTML=`<p><b>Preview for ${esc(month)}</b> â€” method: <b>${esc(({calendar_days:'Calendar days',working_days:'Working days (Monâ€“Fri)',fixed_30_days:'Fixed 30-day month'})[method]||method)}</b>. Uses the payroll blueprint: employee pension 8% of BHT; NHF 2.5% of basic; NHIS employee 5% of basic; annual progressive PAYE bands; employer pension 10% of BHT; employer NHIS 10% of basic; NSITF employer-funded.</p><div class="scroll"><table><thead><tr><th>Employee</th><th>Days</th><th>Gross</th><th>Employee pension</th><th>NHF (2.5% basic)</th><th>NHIS employee (5% basic)</th><th>PAYE / month</th><th>Other employee deductions</th><th>Employer pension</th><th>Employer NHIS</th><th>NSITF employer</th><th>Net pay</th></tr></thead><tbody>${previewRows.map((r,i)=>`<tr><td>${esc(r.employee_number)}<br>${esc(r.full_name)}</td><td>${r.payable_days}/${r.period_days}</td><td>${money(r.gross_pay)}</td><td>${money(r.pension_employee)}</td><td>${money(r.nhf)}</td><td>${money(r.nhis)}</td><td><input type="number" min="0" step=".01" value="0" data-paye="${i}" style="width:100px" aria-label="Monthly PAYE"></td><td><input type="number" min="0" step=".01" value="0" data-ded="${i}" style="width:100px" aria-label="Other employee deductions"></td><td>${money(r.pension_employer)}</td><td>${money(r.nhis_employer)}</td><td>${money(r.nsitf_employer)}</td><td id="net-${i}">${money(r.net_pay)}</td></tr>`).join('')}</tbody></table></div><p class="muted">PAYE chargeable income is annual gross less annual employee pension, NHF and NHIS only, per your verified blueprint. Other employee deductions affect take-home pay but not PAYE. Employer pension, employer NHIS and NSITF are employer costs and do not reduce employee net pay.</p>`;
   previewRows.forEach((r,i)=>{
     const emp=employees.find(e=>e.id===r.employee_id);
     updateTaxAndNet(i);
     if(emp?.paye_applies===false){$(`[data-paye="${i}"]`).disabled=true;r.paye=0;recalcNet(i);}
   });
-  ['nhf','nhis','life','mortgage','rent','relief','paye','ded'].forEach(kind=>{
+  ['paye','ded'].forEach(kind=>{
     document.querySelectorAll(`[data-${kind}]`).forEach(x=>x.addEventListener('input',()=>{
       const i=+x.dataset[kind],r=previewRows[i],v=Math.max(0,+x.value||0);
-      if(kind==='nhf')r.nhf=v;
-      if(kind==='nhis')r.nhis=v;
-      if(kind==='life')r.life_insurance=v;
-      if(kind==='mortgage')r.mortgage_interest=v;
-      if(kind==='rent')r.annual_rent_paid=v;
-      if(kind==='relief')r.other_eligible_relief=v;
       if(kind==='paye'){r.paye=v;recalcNet(i);return;}
-      if(kind==='ded'){r.other_deductions=v;recalcNet(i);return;}
-      updateTaxAndNet(i);
+      r.other_deductions=v;recalcNet(i);
     }));
   });
   function updateTaxAndNet(i){
     const r=previewRows[i],emp=employees.find(e=>e.id===r.employee_id);
-    const eligible={
-      pension:r.pension_employee*12,
-      nhf:(r.nhf||0)*12,
-      nhis:(r.nhis||0)*12,
-      life_insurance:r.life_insurance||0,
-      mortgage_interest:r.mortgage_interest||0,
-      other:r.other_eligible_relief||0
-    };
-    const est=estimateMonthlyPAYE(r.gross_pay*12,eligible,r.annual_rent_paid||0);
+    const est=estimateMonthlyPAYE(r.gross_pay*12,r.pension_employee*12,r.nhf*12,r.nhis*12);
     r.paye=emp?.paye_applies===false?0:est.monthly;
     $(`[data-paye="${i}"]`).value=r.paye.toFixed(2);
     recalcNet(i);
   }
   function recalcNet(i){
     const r=previewRows[i];
-    r.net_pay=r.gross_pay-r.pension_employee-(r.nhf||0)-(r.nhis||0)-r.paye-r.other_deductions;
+    r.net_pay=r.gross_pay-r.pension_employee-r.nhf-r.nhis-r.paye-r.other_deductions;
     $('net-'+i).textContent=money(r.net_pay);
   }
 };
-$('payroll-form').onsubmit=async e=>{e.preventDefault();if(!adminOnly())return;if(!previewRows.length)return message('Load payroll preview first.',true);const org=$('payroll-company').value,month=$('payroll-month').value;if(previewRows.some(r=>r.net_pay<0))return message('One or more net salaries are negative. Review deductions.',true);try{const {data:run,error}=await client.from('payroll_runs').insert({organization_id:org,payroll_month:month+'-01',status:'draft',pension_rate:(+$('pension-rate').value||0),notes:'Draft payroll. Proration method: '+(companies.find(c=>c.id===org)?.proration_method||'calendar_days')+'. PAYE estimated using 2026 bands and annualised monthly pay; review year-to-date tax and actual statutory eligibility before approval. Employer pension and NSITF are employer-funded.'}).select().single();if(error)throw error;const items=previewRows.map(r=>{const {payable_days,period_days,proration_method,...dbRow}=r;return {...dbRow,payroll_run_id:run.id}});const {error:ie}=await client.from('payroll_items').insert(items);if(ie){await client.from('payroll_runs').delete().eq('id',run.id);throw ie}previewRows=[];$('payroll-preview').innerHTML='';await refreshAll();message('Payroll draft saved. Review it before approval.')}catch(e){message('Could not save payroll: '+e.message,true)}};
+$('payroll-form').onsubmit=async e=>{e.preventDefault();if(!adminOnly())return;if(!previewRows.length)return message('Load payroll preview first.',true);const org=$('payroll-company').value,month=$('payroll-month').value;if(previewRows.some(r=>r.net_pay<0))return message('One or more net salaries are negative. Review deductions.',true);try{const {data:run,error}=await client.from('payroll_runs').insert({organization_id:org,payroll_month:month+'-01',status:'draft',pension_rate:(+$('pension-rate').value||0),notes:'Draft payroll. Uses configured proration method, annualised 2026 progressive PAYE bands, employee pension 8% of BHT, NHF 2.5% basic, employee NHIS 5% basic, employer pension 10% BHT, employer NHIS 10% basic, and employer-funded NSITF. Verify cumulative year-to-date PAYE before approval.'}).select().single();if(error)throw error;const items=previewRows.map(r=>{const {payable_days,period_days,proration_method,...dbRow}=r;return {...dbRow,payroll_run_id:run.id}});const {error:ie}=await client.from('payroll_items').insert(items);if(ie){await client.from('payroll_runs').delete().eq('id',run.id);throw ie}previewRows=[];$('payroll-preview').innerHTML='';await refreshAll();message('Payroll draft saved. Review it before approval.')}catch(e){message('Could not save payroll: '+e.message,true)}};
 window.approveRun=async id=>{if(!confirm('Approve this payroll draft? Ensure all salary, tax and deduction figures have been reviewed.'))return;const {error}=await client.from('payroll_runs').update({status:'approved',approved_at:new Date().toISOString()}).eq('id',id).eq('status','draft');if(error)message(error.message,true);else{await refreshAll();message('Payroll marked approved. This does not send payments.')}};
-window.viewRun=async id=>{const r=runs.find(x=>x.id===id);if(!r)return;const {data:items,error}=await client.from('payroll_items').select('*,employees(full_name,employee_number,department,job_title)').eq('payroll_run_id',id);if(error)return message(error.message,true);let c=companies.find(x=>x.id===r.organization_id);let w=window.open('','_blank');if(!w)return message('Allow pop-ups to view/print payroll.',true);w.document.write(`<html><head><title>Payroll ${esc(String(r.payroll_month).slice(0,7))}</title><style>body{font:13px Arial;padding:24px}table{width:100%;border-collapse:collapse}td,th{padding:8px;border:1px solid #ddd;text-align:left}h1{color:#171717}button{padding:8px}</style></head><body><h1>PRINSORA HR CONSULTING SERVICES - PAYROLL SUMMARY</h1><h2>${esc(c?.name||'')} Â· ${esc(String(r.payroll_month).slice(0,7))}</h2><p>Status: ${esc(r.status)}. Confidential.</p><table><tr><th>Employee</th><th>Basic</th><th>Housing</th><th>Transport</th><th>Other</th><th>Gross</th><th>Employee pension</th><th>NHF</th><th>NHIS</th><th>PAYE</th><th>Other deductions</th><th>Employer pension</th><th>NSITF employer</th><th>Net</th></tr>${(items||[]).map(i=>`<tr><td>${esc(i.employees?.employee_number)} â€” ${esc(i.employees?.full_name)}</td><td>${money(i.basic_pay)}</td><td>${money(i.housing_allowance)}</td><td>${money(i.transport_allowance)}</td><td>${money(i.other_allowances)}</td><td>${money(i.gross_pay)}</td><td>${money(i.pension_employee)}</td><td>${money(i.nhf||0)}</td><td>${money(i.nhis||0)}</td><td>${money(i.paye)}</td><td>${money(i.other_deductions)}</td><td>${money(i.pension_employer||0)}</td><td>${money(i.nsitf_employer||0)}</td><td>${money(i.net_pay)}</td></tr>`).join('')}</table><p><button onclick="print()">Print / Save as PDF</button></p></body></html>`);w.document.close()};
+window.viewRun=async id=>{const r=runs.find(x=>x.id===id);if(!r)return;const {data:items,error}=await client.from('payroll_items').select('*,employees(full_name,employee_number,department,job_title)').eq('payroll_run_id',id);if(error)return message(error.message,true);let c=companies.find(x=>x.id===r.organization_id);let w=window.open('','_blank');if(!w)return message('Allow pop-ups to view/print payroll.',true);w.document.write(`<html><head><title>Payroll ${esc(String(r.payroll_month).slice(0,7))}</title><style>body{font:13px Arial;padding:24px}table{width:100%;border-collapse:collapse}td,th{padding:8px;border:1px solid #ddd;text-align:left}h1{color:#171717}button{padding:8px}</style></head><body><h1>PRINSORA HR CONSULTING SERVICES - PAYROLL SUMMARY</h1><h2>${esc(c?.name||'')} Â· ${esc(String(r.payroll_month).slice(0,7))}</h2><p>Status: ${esc(r.status)}. Confidential.</p><table><tr><th>Employee</th><th>Basic</th><th>Housing</th><th>Transport</th><th>Other</th><th>Gross</th><th>Employee pension</th><th>NHF</th><th>NHIS</th><th>PAYE</th><th>Other deductions</th><th>Employer pension</th><th>Employer NHIS</th><th>NSITF employer</th><th>Net</th></tr>${(items||[]).map(i=>`<tr><td>${esc(i.employees?.employee_number)} â€” ${esc(i.employees?.full_name)}</td><td>${money(i.basic_pay)}</td><td>${money(i.housing_allowance)}</td><td>${money(i.transport_allowance)}</td><td>${money(i.other_allowances)}</td><td>${money(i.gross_pay)}</td><td>${money(i.pension_employee)}</td><td>${money(i.nhf||0)}</td><td>${money(i.nhis||0)}</td><td>${money(i.paye)}</td><td>${money(i.other_deductions)}</td><td>${money(i.pension_employer||0)}</td><td>${money(i.nhis_employer||0)}</td><td>${money(i.nsitf_employer||0)}</td><td>${money(i.net_pay)}</td></tr>`).join('')}</table><p><button onclick="print()">Print / Save as PDF</button></p></body></html>`);w.document.close()};
 </script>
 </body></html>
